@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import numpy as np
-import joblib
 import tensorflow as tf
+import joblib  # Import joblib to load the scaler
 
 app = Flask(__name__)
 
@@ -13,8 +13,8 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-# Load the scaler (ensure you save and load your scaler properly)
-scaler = joblib.load("scaler.pkl")  # Load your pre-fitted scaler
+# Load the scaler
+scaler = joblib.load("scaler.pkl")  # Make sure the scaler is in the correct path
 
 
 @app.route("/predict", methods=["POST"])
@@ -22,40 +22,38 @@ def predict():
     try:
         # Get input features from the request (expects JSON input)
         data = request.json
+        print(data)  # Log the incoming data for debugging
 
         # Extract relevant input features
-        gender = data.get(
-            "Gender", None
-        )  # Gender may need encoding if used in the model
-        patient_age = int(data.get("Patient Age", 0))
-        diagnostic_dm_years = float(data.get("Diagnostic DM (years)", 0))
-        smoking = data.get("Smoking?", None)  # Encode if necessary
-        alcohol = data.get("Alcohol?", None)  # Encode if necessary
-        bmi = float(data.get("BMI", 0))
-        lying_sbp_avg = float(data.get("Lying SBP average", 0))
-        stand_3min_sbp = float(data.get("Stand 3min SBP", 0))
-        lying_dbp_avg = float(data.get("Lying DBP average", 0))
-        stand_3min_dbp = float(data.get("Stand 3min DBP", 0))
-        ht_status = data.get("HT Status", None)  # Encode if necessary
-        hr_bpm = float(data.get("HR (BPM) (t_biochemistry_C16)", 0))
-        waist_circumference = float(data.get("Waist Circumference", 0))
-        fasting_glucose = float(data.get("Fasting Glucose(mmol/L)", 0))
-        hba1c = float(data.get("HbA1c (%)", 0))
-        urea = float(data.get("Urea(mmol/L)", 0))
-        creatinine = float(data.get("Creatinine(mmol/L)", 0))
-        triglyceride = float(data.get("Triglyceride(mmol/L)", 0))
-        hdl = float(data.get("HDL(mmol/L)", 0))
-        ldl = float(data.get("LDL(mmol/L)", 0))
-        cvd_risk = float(data.get("CVD % risk 5 years", 0))
-        crp = float(data.get("CRP", 0))
-        gfr = float(data.get("GFR", 0))
-        ewing_result = int(data.get("Ewing Result", 0))
+        gender = data.get("gender", None)
+        patient_age = int(data.get("patientAge", 0))
+        diagnostic_dm_years = float(data.get("diagnosticDmYears", 0))
+        smoking = data.get("smoking", None)
+        alcohol = data.get("alcohol", None)
+        bmi = float(data.get("bmi", 0))
+        lying_sbp_avg = float(data.get("lyingSbpAvg", 0))
+        stand_3min_sbp = float(data.get("stand3MinSbp", 0))
+        lying_dbp_avg = float(data.get("lyingDbpAvg", 0))
+        stand_3min_dbp = float(data.get("stand3MinDbp", 0))
+        ht_status = data.get("htStatus", None)
+        hr_bpm = float(data.get("hrBpm", 0))
+        waist_circumference = float(data.get("waistCircumference", 0))
+        fasting_glucose = float(data.get("fastingGlucose", 0))
+        hba1c = float(data.get("hba1c", 0))
+        urea = float(data.get("urea", 0))
+        creatinine = float(data.get("creatinine", 0))
+        triglyceride = float(data.get("triglyceride", 0))
+        hdl = float(data.get("hdl", 0))
+        ldl = float(data.get("ldl", 0))
+        cvd_risk = float(data.get("cvdRisk", 0))
+        crp = float(data.get("crp", 0))
+        gfr = float(data.get("gfr", 0))
+        ewing_result = int(data.get("ewingResult", 0))
 
         # Prepare input for the model as a NumPy array
         features = np.array(
             [
                 [
-                    # You may need to encode categorical variables
                     1 if gender == "Male" else 0,  # Example: encoding for gender
                     patient_age,
                     diagnostic_dm_years,
@@ -84,12 +82,14 @@ def predict():
             ]
         )
 
-        # Scale the input features
-        features_scaled = scaler.transform(features)
+        print("Raw Features:", features)  # Log the raw features for debugging
+
+        # Scale the input features using the loaded scaler
+        input_features_scaled = scaler.transform(features)
 
         # Set the input tensor to the scaled features
         interpreter.set_tensor(
-            input_details[0]["index"], features_scaled.astype(np.float32)
+            input_details[0]["index"], input_features_scaled.astype(np.float32)
         )
 
         # Run the interpreter
