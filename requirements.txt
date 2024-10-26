@@ -286,7 +286,7 @@ soupsieve==2.3.2.post1
 sqlparse==0.4.4
 st-annotated-text==4.0.1
 stack-data==0.1.4
-starlette==0.13.6
+starlette==0.40.0
 stem==1.8.1
 streamlit==1.28.0
 streamlit-option-menu==0.3.6
