@@ -1,6 +1,6 @@
-Flask==2.2.3
-joblib==1.2.0
-numpy==1.21.6
-scikit-learn==1.0.2
-tensorflow==2.8.0
-tensorflow-lite==2.8.0
+Flask
+joblib
+numpy
+scikit-learn
+tensorflow
+tensorflow-lite
